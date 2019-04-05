@@ -1,0 +1,19 @@
+{
+  "name": "video-maker",
+  "version": "1.0.0",
+  "description": "Aprendizado com Filipe Deschamps",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucasraziel/video-maker.git"
+  },
+  "author": "Lucas Rego",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lucasraziel/video-maker/issues"
+  },
+  "homepage": "https://github.com/lucasraziel/video-maker#readme"
+}

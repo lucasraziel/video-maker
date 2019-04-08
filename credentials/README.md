@@ -24,3 +24,14 @@ File: `naturalLanguageUnderstanding`
   "url": "https://gateway.watsonplatform.net/natural-language-understanding/api"
 }
 ```
+
+## Google Search
+
+File: `google-search.json`
+
+```
+{
+	"apikey" : "API KEY",
+	"searchEngineId": "texto"
+}
+```

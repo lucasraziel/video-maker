@@ -2,10 +2,26 @@ const algorithmia = require('algorithmia')
 const algorithmiaApikey = require('../credentials/algorithmia.json').apikey
 const sentenceBoundaryDetection = require('sbd')
 
+const watsonApiKey = require('../credentials/naturalLanguageUnderstanding.json').apikey
+
+const NaturalLanguageUnderstandingV1 = require('watson-developer-cloud/natural-language-understanding/v1.js')
+ 
+const nlu = new NaturalLanguageUnderstandingV1({
+  iam_apikey: watsonApiKey,
+  version: '2018-04-05',
+  url: 'https://gateway.watsonplatform.net/natural-language-understanding/api/'
+})
+
+
+
+
+
 async function robot(content){
 	await fetchContentFromWikipedia(content)
 	sanitizeContent(content)
 	breakContentIntoSentences(content)
+	limitMaximumSentences (content)
+	await fetchKeywordsOfAllSentences(content)
 
 	
 	async function fetchContentFromWikipedia(content){
@@ -23,6 +39,8 @@ async function robot(content){
 	function sanitizeContent(content){
 		const withoutBlankLinesAndMarkdown = removeBlankLinesAndMarkdown(content.sourceContentOriginal)
 		const withoutDatesinParentheses = removeDatesinParentheses(withoutBlankLinesAndMarkdown)
+
+
 		
 		content.sourceContentSanitized = withoutDatesinParentheses
 		
@@ -56,6 +74,38 @@ async function robot(content){
 				text:sentence,
 				keywords: [],
 				images: []
+			})
+		})
+	}
+
+	function limitMaximumSentences(content){
+		content.sentences = content.sentences.slice(0,content.maximumSentences)
+	}
+
+	async function fetchKeywordsOfAllSentences(content){
+		for (const sentence of content.sentences) {
+			sentence.keywords = await fethcWatsonAndReturnKeywords(sentence.text)
+		}
+	}
+
+	async function fethcWatsonAndReturnKeywords(sentence){
+		return new Promise((resolve,reject)=>{
+			nlu.analyze({
+				text: sentence,
+				features: {
+					keywords: {}
+				}
+			},(error, response)=>{
+				if (error) {
+					throw error
+				}
+
+
+				const keywords = response.keywords.map((keyword)=>{
+					return keyword.text
+				})
+
+				resolve(keywords)
 			})
 		})
 	}

@@ -2,17 +2,20 @@ const imageDownloader = require('image-downloader')
 const google = require('googleapis').google
 const customSearch = google.customsearch('v1')
 const state = require('./state.js')	
+const imgUrlBlackList = require('../content/blackList.json').imageUrlBlackList
 
 const googleSearchCredentials = require('../credentials/google-search.json')
 
 async function robot(){
 	const content = state.load()
 
-	// await fetchImagesofAllSentences(content)
+	await fetchImagesofAllSentences(content)
 
 	await downloadAllImages(content)
 
-	// state.save(content)
+	state.save(content)
+
+
 
 	async function fetchImagesofAllSentences(content){
 		for (const sentence of content.sentences){
@@ -29,7 +32,7 @@ async function robot(){
 			cx: googleSearchCredentials.searchEngineId,
 			q: query,
 			searchType: 'image',
-			num: 2
+			num: 6
 		})
 
 		const imagesUrl = response.data.items.map((item)=>{
@@ -51,6 +54,10 @@ async function robot(){
 				try{
 					if (content.downloadedImages.includes(imageUrl)){
 						throw new Error('Imagem já foi baixada')
+					}
+
+					if (imgUrlBlackList.includes(imageUrl)){
+						throw new Error('Imagem em black list')
 					}
 					await downloadAndSave(imageUrl, `${sentenceIndex}-original.png`)
 					content.downloadedImages.push(imageUrl)
